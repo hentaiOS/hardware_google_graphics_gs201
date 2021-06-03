@@ -17,7 +17,6 @@
 #ifndef ANDROID_EXYNOS_HWC_MODULE_GS201_H_
 #define ANDROID_EXYNOS_HWC_MODULE_GS201_H_
 
-#define DISABLE_M2M_MPPS
 #include "../../gs101/libhwc2.1/ExynosHWCModule.h"
 
 #endif // ANDROID_EXYNOS_HWC_MODULE_GS201_H_
