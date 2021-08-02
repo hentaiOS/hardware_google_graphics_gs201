@@ -17,14 +17,41 @@
 #ifndef EXYNOS_DISPLAY_DRM_INTERFACE_MODULE_GS201_H
 #define EXYNOS_DISPLAY_DRM_INTERFACE_MODULE_GS201_H
 
+#include <drm/samsung_drm.h>
+
 #include "../../gs101/libhwc2.1/libdisplayinterface/ExynosDisplayDrmInterfaceModule.h"
 
 namespace gs201 {
 
 using namespace displaycolor;
 
-using ExynosDisplayDrmInterfaceModule = gs101::ExynosDisplayDrmInterfaceModule;
-using ExynosPrimaryDisplayDrmInterfaceModule = gs101::ExynosPrimaryDisplayDrmInterfaceModule;
+class ExynosDisplayDrmInterfaceModule : public gs101::ExynosDisplayDrmInterfaceModule {
+    static constexpr size_t sizeCgcDmaLut = 2 * 3 * DRM_SAMSUNG_CGC_DMA_LUT_ENTRY_CNT;	// 16bit BGR
+    static constexpr int32_t disabledCgc = -1;
+    public:
+        ExynosDisplayDrmInterfaceModule(ExynosDisplay *exynosDisplay);
+        virtual ~ExynosDisplayDrmInterfaceModule();
+        virtual int32_t initDrmDevice(DrmDevice *drmDevice);
+
+        virtual int32_t setDisplayColorSetting(
+                ExynosDisplayDrmInterface::DrmModeAtomicReq &drmReq);
+
+    private:
+        int32_t createCgcDMAFromIDqe(const IDisplayColorGS101::IDqe::CgcData &cgcData);
+        int32_t setCgcLutDmaProperty(const DrmProperty &prop,
+                                     ExynosDisplayDrmInterface::DrmModeAtomicReq &drmReq);
+
+        bool mCgcEnabled = false;
+        int32_t mCgcDmaLutFd;
+        struct cgc_dma_lut *mCgcDmaLutBuf;
+};
+
+class ExynosPrimaryDisplayDrmInterfaceModule : public ExynosDisplayDrmInterfaceModule {
+    public:
+        ExynosPrimaryDisplayDrmInterfaceModule(ExynosDisplay *exynosDisplay);
+        virtual ~ExynosPrimaryDisplayDrmInterfaceModule();
+};
+
 using ExynosExternalDisplayDrmInterfaceModule = gs101::ExynosExternalDisplayDrmInterfaceModule;
 
 }  // namespace gs201
