@@ -28,6 +28,7 @@ using namespace displaycolor;
 class ExynosDisplayDrmInterfaceModule : public gs101::ExynosDisplayDrmInterfaceModule {
     static constexpr size_t sizeCgcDmaLut = 2 * 3 * DRM_SAMSUNG_CGC_DMA_LUT_ENTRY_CNT;	// 16bit BGR
     static constexpr int32_t disabledCgc = -1;
+    static constexpr size_t sizeCgCDataInfo = 2;
     public:
         ExynosDisplayDrmInterfaceModule(ExynosDisplay *exynosDisplay);
         virtual ~ExynosDisplayDrmInterfaceModule();
@@ -42,8 +43,10 @@ class ExynosDisplayDrmInterfaceModule : public gs101::ExynosDisplayDrmInterfaceM
                                      ExynosDisplayDrmInterface::DrmModeAtomicReq &drmReq);
 
         bool mCgcEnabled = false;
-        int32_t mCgcDmaLutFd;
-        struct cgc_dma_lut *mCgcDmaLutBuf;
+
+        using CGCDataInfo = std::pair<int32_t, struct cgc_dma_lut *>;
+        std::vector<CGCDataInfo> mCGCDataInfos;
+        size_t iCGCDataInfo = 0;
 };
 
 class ExynosPrimaryDisplayDrmInterfaceModule : public ExynosDisplayDrmInterfaceModule {

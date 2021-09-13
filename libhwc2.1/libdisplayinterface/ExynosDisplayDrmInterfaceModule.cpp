@@ -28,11 +28,13 @@ ExynosDisplayDrmInterfaceModule::ExynosDisplayDrmInterfaceModule(ExynosDisplay *
 
 ExynosDisplayDrmInterfaceModule::~ExynosDisplayDrmInterfaceModule()
 {
-    if (mCgcDmaLutBuf != nullptr)
-        munmap(mCgcDmaLutBuf, sizeCgcDmaLut);
+    for (auto p: mCGCDataInfos) {
+        if (p.second != nullptr)
+            munmap(p.second, sizeCgcDmaLut);
 
-    if (mCgcDmaLutFd > 0)
-        close(mCgcDmaLutFd);
+        if (p.first > 0)
+            close(p.first);
+    }
 }
 
 int32_t ExynosDisplayDrmInterfaceModule::initDrmDevice(DrmDevice *drmDevice)
@@ -41,24 +43,36 @@ int32_t ExynosDisplayDrmInterfaceModule::initDrmDevice(DrmDevice *drmDevice)
     if (ret != NO_ERROR)
         return ret;
 
-    /* create file descriptor for CGC DMA */
+    /* create file descriptors for CGC DMA */
+    int32_t fd;
+    struct cgc_dma_lut *buf;
+
     int ionFd = exynos_ion_open();
     if (ionFd >= 0) {
-        mCgcDmaLutFd = exynos_ion_alloc(ionFd, sizeCgcDmaLut, EXYNOS_ION_HEAP_SYSTEM_MASK, 0);
-        if (mCgcDmaLutFd >= 0) {
-            mCgcDmaLutBuf = (struct cgc_dma_lut *)mmap(0, sizeCgcDmaLut, PROT_READ | PROT_WRITE,
-                                                     MAP_SHARED, mCgcDmaLutFd, 0);
-            if (mCgcDmaLutBuf == nullptr)
-                ALOGE("Failed to map for CGC_DMA LUT");
-            else
-                memset(mCgcDmaLutBuf, 0, sizeCgcDmaLut);
-        } else {
-            ALOGE("Failed to ION alloc for CGC_DMA LUT");
-            mCgcDmaLutBuf = nullptr;
+        while (mCGCDataInfos.size() < sizeCgCDataInfo) {
+            fd = exynos_ion_alloc(ionFd, sizeCgcDmaLut, EXYNOS_ION_HEAP_SYSTEM_MASK, 0);
+            if (fd >= 0) {
+                buf = (struct cgc_dma_lut *)mmap(0, sizeCgcDmaLut, PROT_READ | PROT_WRITE,
+                                                 MAP_SHARED, fd, 0);
+                if (buf == nullptr) {
+                    ALOGE("Failed to map buffer for CGC_DMA LUT");
+                    close(fd);
+                    ret = -ENOMEM;
+                    break;
+                } else {
+                    memset(buf, 0, sizeCgcDmaLut);
+                    mCGCDataInfos.emplace_back(CGCDataInfo(fd, buf));
+                }
+            } else {
+                ALOGE("Failed to allocate ION for CGC_DMA LUT");
+                ret = -ENOMEM;
+                break;
+            }
         }
 
         exynos_ion_close(ionFd);
-    }
+    } else
+        ALOGE("Failed to open ION for CGC_DMA LUT");
 
     return ret;
 }
@@ -76,20 +90,26 @@ int32_t ExynosDisplayDrmInterfaceModule::createCgcDMAFromIDqe(
         return -EINVAL;
     }
 
+    if (iCGCDataInfo >= mCGCDataInfos.size()) {
+        ALOGE("CGC Data Infos is empty");
+        return -EINVAL;
+    }
+
+    struct cgc_dma_lut *buf = mCGCDataInfos.at(iCGCDataInfo).second;
     uint32_t i = 0;
     for (; i < (DRM_SAMSUNG_CGC_LUT_REG_CNT - 1); i++) {
-        mCgcDmaLutBuf[i * 2].r_value = (uint16_t)(cgcData.config->r_values[i]);
-        mCgcDmaLutBuf[i * 2].g_value = (uint16_t)(cgcData.config->g_values[i]);
-        mCgcDmaLutBuf[i * 2].b_value = (uint16_t)(cgcData.config->b_values[i]);
-        mCgcDmaLutBuf[i * 2 + 1].r_value = (uint16_t)(cgcData.config->r_values[i] >> 16);
-        mCgcDmaLutBuf[i * 2 + 1].g_value = (uint16_t)(cgcData.config->g_values[i] >> 16);
-        mCgcDmaLutBuf[i * 2 + 1].b_value = (uint16_t)(cgcData.config->b_values[i] >> 16);
+        buf[i * 2].r_value = (uint16_t)(cgcData.config->r_values[i]);
+        buf[i * 2].g_value = (uint16_t)(cgcData.config->g_values[i]);
+        buf[i * 2].b_value = (uint16_t)(cgcData.config->b_values[i]);
+        buf[i * 2 + 1].r_value = (uint16_t)(cgcData.config->r_values[i] >> 16);
+        buf[i * 2 + 1].g_value = (uint16_t)(cgcData.config->g_values[i] >> 16);
+        buf[i * 2 + 1].b_value = (uint16_t)(cgcData.config->b_values[i] >> 16);
     }
-    mCgcDmaLutBuf[i * 2].r_value = (uint16_t)cgcData.config->r_values[i];
-    mCgcDmaLutBuf[i * 2].g_value = (uint16_t)cgcData.config->g_values[i];
-    mCgcDmaLutBuf[i * 2].b_value = (uint16_t)cgcData.config->b_values[i];
+    buf[i * 2].r_value = (uint16_t)cgcData.config->r_values[i];
+    buf[i * 2].g_value = (uint16_t)cgcData.config->g_values[i];
+    buf[i * 2].b_value = (uint16_t)cgcData.config->b_values[i];
 
-    return mCgcDmaLutFd;
+    return mCGCDataInfos.at(iCGCDataInfo).first;
 }
 
 int32_t ExynosDisplayDrmInterfaceModule::setCgcLutDmaProperty(
@@ -116,16 +136,13 @@ int32_t ExynosDisplayDrmInterfaceModule::setCgcLutDmaProperty(
             return NO_ERROR;
         }
 
-        if (mCgcDmaLutBuf == nullptr) {
-            ALOGE("no CGC DMA LUT Buffer");
-            return NO_ERROR;
-        }
-
         cgcLutFd = createCgcDMAFromIDqe(cgcData);
         if (cgcLutFd < 0) {
             HWC_LOGE(mExynosDisplay, "%s: create CGC DMA FD fail", __func__);
             return cgcLutFd;
         }
+
+        iCGCDataInfo = (iCGCDataInfo + 1) % sizeCgCDataInfo;
     }
 
     /* CGC Disabled information should not be delivered at every frame */
