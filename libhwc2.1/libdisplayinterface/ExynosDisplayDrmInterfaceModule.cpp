@@ -175,6 +175,46 @@ int32_t ExynosDisplayDrmInterfaceModule::setDisplayColorSetting(
 
     return setCgcLutDmaProperty(mDrmCrtc->cgc_lut_fd_property(), drmReq);
 }
+
+int32_t ExynosDisplayDrmInterfaceModule::setHistoPosProperty(
+    const DrmProperty &prop,
+    ExynosDisplayDrmInterface::DrmModeAtomicReq &drmReq) {
+  if (!prop.id()) return NO_ERROR;
+
+  int32_t ret = 0;
+
+  if ((ret = drmReq.atomicAddProperty(
+           mDrmCrtc->id(), prop, (uint64_t)mHistogramInfo->getHistogramPos(),
+           true)) < 0) {
+    HWC_LOGE(mExynosDisplay, "%s: Fail to set histogram position property",
+             __func__);
+    return ret;
+  }
+
+  return NO_ERROR;
+}
+
+int32_t ExynosDisplayDrmInterfaceModule::setDisplayHistogramSetting(
+    ExynosDisplayDrmInterface::DrmModeAtomicReq &drmReq) {
+  if ((mHistogramInfoRegistered == false) || (isPrimary() == false))
+    return -ENOTSUP;
+
+  int32_t ret =
+      gs101::ExynosDisplayDrmInterfaceModule::setDisplayHistogramSetting(
+          drmReq);
+  if (ret != NO_ERROR) return ret;
+
+  ret = setHistoPosProperty(mDrmCrtc->histogram_position_property(), drmReq);
+
+  return ret;
+}
+
+void ExynosDisplayDrmInterfaceModule::registerHistogramInfo(
+    IDLHistogram *info) {
+  gs101::ExynosDisplayDrmInterfaceModule::registerHistogramInfo(info);
+  mHistogramInfo.reset(info);
+}
+
 //////////////////////////////////////////////////// ExynosPrimaryDisplayDrmInterfaceModule //////////////////////////////////////////////////////////////////
 ExynosPrimaryDisplayDrmInterfaceModule::ExynosPrimaryDisplayDrmInterfaceModule(ExynosDisplay *exynosDisplay)
   : ExynosDisplayDrmInterfaceModule(exynosDisplay)
