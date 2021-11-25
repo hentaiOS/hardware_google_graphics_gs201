@@ -19,4 +19,10 @@
 
 #include "../../gs101/libhwc2.1/ExynosHWCModule.h"
 
+#ifdef EARLY_WAKUP_NODE_0_BASE
+#undef EARLY_WAKUP_NODE_0_BASE
+#endif
+
+#define EARLY_WAKUP_NODE_0_BASE	"/sys/devices/platform/1c240000.drmdecon/early_wakeup"
+
 #endif // ANDROID_EXYNOS_HWC_MODULE_GS201_H_
