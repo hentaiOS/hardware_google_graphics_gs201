@@ -26,4 +26,5 @@ LOCAL_SRC_FILES += \
 LOCAL_CFLAGS += -DDISPLAY_COLOR_LIB=\"libdisplaycolor.so\"
 
 LOCAL_C_INCLUDES += \
+	$(TOP)/hardware/google/graphics/gs201/histogram \
 	$(TOP)/hardware/google/graphics/gs101/include
