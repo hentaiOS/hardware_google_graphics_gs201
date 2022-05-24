@@ -37,16 +37,27 @@ class ExynosDisplayDrmInterfaceModule : public gs101::ExynosDisplayDrmInterfaceM
         virtual int32_t setDisplayColorSetting(
                 ExynosDisplayDrmInterface::DrmModeAtomicReq &drmReq);
 
+        /* For Histogram */
+        virtual int32_t setDisplayHistogramSetting(
+            ExynosDisplayDrmInterface::DrmModeAtomicReq &drmReq) override;
+        virtual void registerHistogramInfo(IDLHistogram *info) override;
+
     private:
         int32_t createCgcDMAFromIDqe(const IDisplayColorGS101::IDqe::CgcData &cgcData);
         int32_t setCgcLutDmaProperty(const DrmProperty &prop,
                                      ExynosDisplayDrmInterface::DrmModeAtomicReq &drmReq);
+        /* For Histogram */
+        int32_t setHistoPosProperty(
+            const DrmProperty &prop,
+            ExynosDisplayDrmInterface::DrmModeAtomicReq &drmReq);
 
         bool mCgcEnabled = false;
 
         using CGCDataInfo = std::pair<int32_t, struct cgc_dma_lut *>;
         std::vector<CGCDataInfo> mCGCDataInfos;
         size_t iCGCDataInfo = 0;
+        /* For Histogram */
+        std::shared_ptr<IDLHistogram> mHistogramInfo;
 };
 
 class ExynosPrimaryDisplayDrmInterfaceModule : public ExynosDisplayDrmInterfaceModule {
