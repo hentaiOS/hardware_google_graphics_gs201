@@ -197,7 +197,7 @@ int32_t ExynosDisplayDrmInterfaceModule::setHistoPosProperty(
 int32_t ExynosDisplayDrmInterfaceModule::setDisplayHistogramSetting(
     ExynosDisplayDrmInterface::DrmModeAtomicReq &drmReq) {
   if ((mHistogramInfoRegistered == false) || (isPrimary() == false))
-    return -ENOTSUP;
+    return NO_ERROR;
 
   int32_t ret =
       gs101::ExynosDisplayDrmInterfaceModule::setDisplayHistogramSetting(
