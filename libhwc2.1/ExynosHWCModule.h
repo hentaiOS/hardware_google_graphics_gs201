@@ -19,13 +19,10 @@
 
 #include "../../gs101/libhwc2.1/ExynosHWCModule.h"
 
-#ifdef EARLY_WAKUP_NODE_0_BASE
-#undef EARLY_WAKUP_NODE_0_BASE
-#endif
-
-#define EARLY_WAKUP_NODE_0_BASE	"/sys/devices/platform/1c240000.drmdecon/early_wakeup"
-
 namespace gs201 {
+
+static const char *early_wakeup_node_0_base =
+    "/sys/devices/platform/1c240000.drmdecon/early_wakeup";
 
 static const dpp_channel_map_t idma_channel_map[] = {
     /* GF physical index is switched to change assign order */
