@@ -78,7 +78,7 @@ int32_t ExynosDisplayDrmInterfaceModule::initDrmDevice(DrmDevice *drmDevice)
 }
 
 int32_t ExynosDisplayDrmInterfaceModule::createCgcDMAFromIDqe(
-        const IDisplayColorGS101::IDqe::CgcData &cgcData)
+        const GsInterfaceType::IDqe::CgcData &cgcData)
 {
     if ((cgcData.config->r_values.size() != DRM_SAMSUNG_CGC_LUT_REG_CNT) ||
         (cgcData.config->g_values.size() != DRM_SAMSUNG_CGC_LUT_REG_CNT) ||
@@ -120,8 +120,8 @@ int32_t ExynosDisplayDrmInterfaceModule::setCgcLutDmaProperty(
         return NO_ERROR;
 
     ExynosPrimaryDisplayModule* display = (ExynosPrimaryDisplayModule*)mExynosDisplay;
-    const IDisplayColorGS101::IDqe &dqe = display->getDqe();
-    const IDisplayColorGS101::IDqe::CgcData &cgcData = dqe.Cgc();
+    const GsInterfaceType::IDqe &dqe = display->getDqe();
+    const GsInterfaceType::IDqe::CgcData &cgcData = dqe.Cgc();
 
     /* dirty bit is valid only if enable is true */
     if (!mForceDisplayColorSetting && cgcData.enable && !cgcData.dirty)
