@@ -40,7 +40,7 @@ class ExynosDisplayDrmInterfaceModule : public gs101::ExynosDisplayDrmInterfaceM
         /* For Histogram */
         virtual int32_t setDisplayHistogramSetting(
             ExynosDisplayDrmInterface::DrmModeAtomicReq &drmReq) override;
-        virtual void registerHistogramInfo(IDLHistogram *info) override;
+        virtual void registerHistogramInfo(const std::shared_ptr<IDLHistogram> &info) override;
 
     private:
         int32_t createCgcDMAFromIDqe(const IDisplayColorGS101::IDqe::CgcData &cgcData);
