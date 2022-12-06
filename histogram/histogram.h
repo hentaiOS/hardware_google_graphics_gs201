@@ -28,8 +28,14 @@ class IDLHistogram : public HistogramInfo {
  public:
   IDLHistogram() : HistogramInfo(HistogramType::HISTOGRAM_HIDL) {}
   virtual ~IDLHistogram() {}
-  virtual void setHistogramPos(HistogramPos pos) { mHistogramPos = pos; }
-  HistogramPos getHistogramPos() { return mHistogramPos; }
+  virtual void setHistogramPos(HistogramPos pos) {
+      std::unique_lock<std::mutex> lk(mSetHistInfoMutex);
+      mHistogramPos = pos;
+  }
+  HistogramPos getHistogramPos() {
+      std::unique_lock<std::mutex> lk(mSetHistInfoMutex);
+      return mHistogramPos;
+  }
 
  private:
   HistogramPos mHistogramPos = HistogramPos::POST;
