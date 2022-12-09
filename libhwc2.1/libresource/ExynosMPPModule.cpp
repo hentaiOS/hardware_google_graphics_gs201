@@ -22,11 +22,11 @@
 
 using namespace gs201;
 
-ExynosMPPModule::ExynosMPPModule(ExynosResourceManager* resourceManager,
-        uint32_t physicalType, uint32_t logicalType, const char *name,
-        uint32_t physicalIndex, uint32_t logicalIndex, uint32_t preAssignInfo)
-  : gs101::ExynosMPPModule(resourceManager, physicalType, logicalType, name,
-                           physicalIndex, logicalIndex, preAssignInfo) {}
+ExynosMPPModule::ExynosMPPModule(ExynosResourceManager *resourceManager, uint32_t physicalType,
+                                 uint32_t logicalType, const char *name, uint32_t physicalIndex,
+                                 uint32_t logicalIndex, uint32_t preAssignInfo)
+      : gs101::ExynosMPPModule(resourceManager, physicalType, logicalType, name, physicalIndex,
+                               logicalIndex, preAssignInfo) {}
 
 ExynosMPPModule::~ExynosMPPModule() {}
 
@@ -43,19 +43,18 @@ bool checkSpecificRestriction(const ExynosDisplay &display,
     const uint32_t refresh_rate = display.getBtsRefreshRate();
     if (refresh_rate >= 90) {
         VendorGraphicBufferMeta gmeta(src.bufferHandle);
-        if (src.fullWidth == 3840 && src.w >= 3584 && src.fullHeight >= 2160 &&
-            src.h >= 1600 && isFormatYUV(gmeta.format)) {
+        if (src.fullWidth == 3840 && src.w >= 3584 && src.fullHeight >= 2160 && src.h >= 1600 &&
+            isFormatYUV(gmeta.format)) {
             return true;
         }
     }
-
     return false;
 }
 
 int64_t ExynosMPPModule::isSupported(ExynosDisplay &display,
                                      struct exynos_image &src,
                                      struct exynos_image &dst) {
-    if (checkSpecificRestriction(display, src)) {
+    if (mPhysicalType < MPP_DPP_NUM && checkSpecificRestriction(display, src)) {
         return -eMPPSatisfiedRestriction;
     }
     return ExynosMPP::isSupported(display, src, dst);
