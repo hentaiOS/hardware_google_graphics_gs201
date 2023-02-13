@@ -30,6 +30,8 @@ class ExynosMPPModule : public gs101::ExynosMPPModule {
         ~ExynosMPPModule();
         virtual int64_t isSupported(ExynosDisplay &display, struct exynos_image &src,
                                     struct exynos_image &dst);
+        virtual bool checkSpecificRestriction(const uint32_t __unused refreshRate,
+                                              const struct exynos_image &src);
 };
 
 }  // namespace gs201
