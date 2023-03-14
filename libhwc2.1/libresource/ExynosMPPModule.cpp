@@ -41,8 +41,12 @@ bool ExynosMPPModule::checkSpecificRestriction(const uint32_t refreshRate,
         VendorGraphicBufferMeta gmeta(src.bufferHandle);
 
         if (isFormatYUV(gmeta.format)) {
-            if (src.fullWidth == 3840 && src.w >= 3584 && src.fullHeight >= 2000 && src.h >= 1600) {
-                // downscale 4k YUV layer
+            // 16:9 4k or large YUV layer
+            if (src.w >= 3584 && src.h >= 1600) {
+                return true;
+            }
+            // 9:16 4k or large YUV layer
+            if (src.h >= 2600 && src.w >= 1450 && src.h > dst.h && (dst.h * 100 / src.h) < 67) {
                 return true;
             }
         } else if (src.w >= 1680 && src.h > dst.h && (dst.h * 100 / src.h) < 60) {
