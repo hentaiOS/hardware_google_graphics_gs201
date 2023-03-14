@@ -196,8 +196,7 @@ int32_t ExynosDisplayDrmInterfaceModule::setHistoPosProperty(
 
 int32_t ExynosDisplayDrmInterfaceModule::setDisplayHistogramSetting(
     ExynosDisplayDrmInterface::DrmModeAtomicReq &drmReq) {
-  if ((mHistogramInfoRegistered == false) || (isPrimary() == false))
-    return NO_ERROR;
+  if ((isHistogramInfoRegistered() == false) || (isPrimary() == false)) return NO_ERROR;
 
   int32_t ret =
       gs101::ExynosDisplayDrmInterfaceModule::setDisplayHistogramSetting(
@@ -210,9 +209,9 @@ int32_t ExynosDisplayDrmInterfaceModule::setDisplayHistogramSetting(
 }
 
 void ExynosDisplayDrmInterfaceModule::registerHistogramInfo(
-    IDLHistogram *info) {
+        const std::shared_ptr<IDLHistogram> &info) {
   gs101::ExynosDisplayDrmInterfaceModule::registerHistogramInfo(info);
-  mHistogramInfo.reset(info);
+  mHistogramInfo = info;
 }
 
 //////////////////////////////////////////////////// ExynosPrimaryDisplayDrmInterfaceModule //////////////////////////////////////////////////////////////////
