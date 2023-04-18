@@ -33,29 +33,41 @@ ExynosMPPModule::~ExynosMPPModule() {}
 /* This function is used to restrict case that current MIF voting can't cover
  * it. Once a solution is ready, the restriction need to be removed.
  */
-bool checkSpecificRestriction(const ExynosDisplay &display,
-                              const struct exynos_image &src) {
-    if (src.bufferHandle == nullptr) {
-        return false;
-    }
-
-    // case: downscale 4k video layer as equal or higher than 90FPS
-    const uint32_t refresh_rate = display.getBtsRefreshRate();
-    if (refresh_rate >= 90) {
+bool ExynosMPPModule::checkSpecificRestriction(const uint32_t refreshRate,
+                                               const struct exynos_image &src,
+                                               const struct exynos_image &dst) {
+    /* additional restriction for composer in high refresh rate */
+    if (mPhysicalType < MPP_DPP_NUM && refreshRate >= 90) {
         VendorGraphicBufferMeta gmeta(src.bufferHandle);
-        if (src.fullWidth == 3840 && src.w >= 3584 && src.fullHeight >= 2160 && src.h >= 1600 &&
-            isFormatYUV(gmeta.format)) {
+
+        if (isFormatYUV(gmeta.format)) {
+            // 16:9 4k or large YUV layer
+            if (src.w >= 3584 && src.h >= 1600) {
+                return true;
+            }
+            // 9:16 4k or large YUV layer
+            if (src.h >= 2600 && src.w >= 1450 && src.h > dst.h && (dst.h * 100 / src.h) < 67) {
+                return true;
+            }
+        } else if (src.w >= 1680 && src.h > dst.h && (dst.h * 100 / src.h) < 60) {
+            // vertical downscale RGB layer
             return true;
         }
     }
-    return false;
+
+    return ExynosMPP::checkSpecificRestriction(refreshRate, src, dst);
 }
 
 int64_t ExynosMPPModule::isSupported(ExynosDisplay &display,
                                      struct exynos_image &src,
                                      struct exynos_image &dst) {
-    if (mPhysicalType < MPP_DPP_NUM && checkSpecificRestriction(display, src)) {
-        return -eMPPSatisfiedRestriction;
+    if (mPhysicalType < MPP_DPP_NUM && src.bufferHandle != nullptr) {
+        const uint32_t refreshRate = display.getBtsRefreshRate();
+
+        if (checkSpecificRestriction(refreshRate, src, dst)) {
+            return -eMPPSatisfiedRestriction;
+        }
     }
+
     return ExynosMPP::isSupported(display, src, dst);
 }
