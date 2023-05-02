@@ -139,6 +139,8 @@ static const restriction_key_t restriction_format_table[] = {
     {MPP_G2D, NODE_NONE, HAL_PIXEL_FORMAT_GOOGLE_NV12_SP_10B, 0},
 };
 
+static ppc_table ppc_table_map = gs101::ppc_table_map;
+
 } // namespace gs201
 
 #endif // EXYNOS_RESOURCE_RESTRICTION_GS201_H_
