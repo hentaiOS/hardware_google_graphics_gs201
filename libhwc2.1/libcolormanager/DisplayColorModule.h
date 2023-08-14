@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,6 @@
  * limitations under the License.
  */
 
-#ifndef DISPLAY_COLOR_LOADER_GS201_H
-#define DISPLAY_COLOR_LOADER_GS201_H
+#pragma once
 
-#include "../../gs101/libhwc2.1/libmaindisplay/DisplayColorLoader.h"
-
-namespace gs201 {
-
-using DisplayColorLoader = gs101::DisplayColorLoader;
-
-}  // namespace gs201
-
-#endif // DISPLAY_COLOR_LOADER_GS201_H
+#include "../../../gs101/libhwc2.1/libcolormanager/DisplayColorModule.h"

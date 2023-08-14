@@ -29,6 +29,7 @@ class ExynosDisplayDrmInterfaceModule : public gs101::ExynosDisplayDrmInterfaceM
     static constexpr size_t sizeCgcDmaLut = 2 * 3 * DRM_SAMSUNG_CGC_DMA_LUT_ENTRY_CNT;	// 16bit BGR
     static constexpr int32_t disabledCgc = -1;
     static constexpr size_t sizeCgCDataInfo = 2;
+    using GsInterfaceType = gs::ColorDrmBlobFactory::GsInterfaceType;
     public:
         ExynosDisplayDrmInterfaceModule(ExynosDisplay *exynosDisplay);
         virtual ~ExynosDisplayDrmInterfaceModule();
@@ -43,7 +44,7 @@ class ExynosDisplayDrmInterfaceModule : public gs101::ExynosDisplayDrmInterfaceM
         virtual void registerHistogramInfo(const std::shared_ptr<IDLHistogram> &info) override;
 
     private:
-        int32_t createCgcDMAFromIDqe(const IDisplayColorGS101::IDqe::CgcData &cgcData);
+        int32_t createCgcDMAFromIDqe(const GsInterfaceType::IDqe::CgcData &cgcData);
         int32_t setCgcLutDmaProperty(const DrmProperty &prop,
                                      ExynosDisplayDrmInterface::DrmModeAtomicReq &drmReq);
         /* For Histogram */
