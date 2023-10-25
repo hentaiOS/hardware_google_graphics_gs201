@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+#pragma once
+
 #include "HistogramDevice.h"
 
 class HistogramController : public HistogramDevice {
 public:
-    HistogramController(ExynosDisplay *display) : HistogramDevice(display, 1, {}) {}
+    HistogramController(ExynosDisplay* display) : HistogramDevice(display, 1, {}) {}
 };
