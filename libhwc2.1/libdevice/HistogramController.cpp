@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-#pragma once
+#include "HistogramController.h"
 
-#include "HistogramDevice.h"
-
-class HistogramController : public HistogramDevice {
-public:
-    HistogramController(ExynosDisplay* display) : HistogramDevice(display, 1, {}) {}
-    virtual void initPlatformHistogramCapability() override;
-};
+void HistogramController::initPlatformHistogramCapability() {
+    mHistogramCapability.supportSamplePosList.push_back(HistogramSamplePos::PRE_POSTPROC);
+}
