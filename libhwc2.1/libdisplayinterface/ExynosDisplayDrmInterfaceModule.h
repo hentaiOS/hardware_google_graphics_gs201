@@ -57,8 +57,6 @@ class ExynosDisplayDrmInterfaceModule : public gs101::ExynosDisplayDrmInterfaceM
         using CGCDataInfo = std::pair<int32_t, struct cgc_dma_lut *>;
         std::vector<CGCDataInfo> mCGCDataInfos;
         size_t iCGCDataInfo = 0;
-        /* For Histogram */
-        std::shared_ptr<IDLHistogram> mHistogramInfo;
 };
 
 class ExynosPrimaryDisplayDrmInterfaceModule : public ExynosDisplayDrmInterfaceModule {

@@ -46,6 +46,11 @@ static const exynos_mpp_t available_otf_mpp_units[] = {
     {MPP_DPP_VGRFS, MPP_LOGICAL_DPP_VGRFS, "DPP_VGRFS2", 2, 0, HWC_DISPLAY_SECONDARY_BIT, 0, 0}
 };
 
+static const std::array<exynos_display_t, 2> AVAILABLE_DISPLAY_UNITS = {{
+    {HWC_DISPLAY_PRIMARY, 0, "PrimaryDisplay", "/dev/dri/card0", ""},
+    {HWC_DISPLAY_PRIMARY, 1, "SecondaryDisplay", "/dev/dri/card0", ""}
+}};
+
 } // namespace gs201
 
 #endif // ANDROID_EXYNOS_HWC_MODULE_GS201_H_
